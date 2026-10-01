@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Equipment Detail | ENGI HUB</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        body {
+            background: #f8fafc;
+        }
+
+        .equipment-detail-section {
+
+            width: 90%;
+            max-width: 1100px;
+
+            margin: 60px auto;
+
+        }
+
+
+        .back-button {
+
+            display: inline-block;
+
+            margin-bottom: 25px;
+
+            padding: 10px 18px;
+
+            background: #2563eb;
+
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 10px;
+
+        }
+
+
+        .back-button:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        .equipment-detail-card {
+
+            background: white;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 10px 30px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        .equipment-detail-image {
+
+            width: 100%;
+
+            max-height: 500px;
+
+            object-fit: contain;
+
+            display: block;
+
+            background: #e2e8f0;
+
+        }
+
+
+        .equipment-detail-content {
+
+            padding: 35px;
+
+        }
+
+
+        .equipment-detail-category {
+
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            background: #dbeafe;
+
+            color: #1d4ed8;
+
+            font-size: 13px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .equipment-detail-content h1 {
+
+            margin: 0;
+
+            color: #1e293b;
+
+            font-size: 36px;
+
+        }
+
+
+        .equipment-thai-name {
+
+            margin-top: 8px;
+
+            color: #64748b;
+
+            font-size: 20px;
+
+        }
+
+
+        .detail-box {
+
+            margin-top: 30px;
+
+        }
+
+
+        .detail-box h2 {
+
+            margin-bottom: 10px;
+
+            color: #1e293b;
+
+        }
+
+
+        .detail-box p {
+
+            color: #475569;
+
+            line-height: 1.8;
+
+        }
+
+
+        .detail-box ul {
+
+            padding-left: 25px;
+
+            color: #475569;
+
+            line-height: 1.9;
+
+        }
+
+
+        .measurement-list {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+        }
+
+
+        .measurement-item {
+
+            padding: 8px 14px;
+
+            background: #f1f5f9;
+
+            border-radius: 10px;
+
+            color: #334155;
+
+        }
+
+
+        .detail-loading {
+
+            text-align: center;
+
+            padding: 60px;
+
+            color: #64748b;
+
+        }
+
+
+        .detail-error {
+
+            text-align: center;
+
+            padding: 60px;
+
+            color: #dc2626;
+
+        }
+
+
+        @media (max-width: 650px) {
+
+            .equipment-detail-content {
+
+                padding: 25px;
+
+            }
+
+            .equipment-detail-content h1 {
+
+                font-size: 28px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            ⚙ ENGI HUB
+        </div>
+
+        <div class="menu">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="index.html#tools">
+                Tools
+            </a>
+
+            <a href="formulas.html">
+                Formulas
+            </a>
+
+            <a href="index.html#equipment">
+                Equipment
+            </a>
+
+            <a href="history.html">
+                History
+            </a>
+
+            <a href="index.html#about">
+                About
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main class="equipment-detail-section">
+
+        <a href="index.html#equipment"
+           class="back-button">
+
+            ← กลับไป Equipment
+
+        </a>
+
+
+        <div id="equipmentDetail">
+
+            <div class="detail-loading">
+
+                🔄 กำลังโหลดข้อมูลอุปกรณ์...
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        async function loadEquipmentDetail() {
+
+            const detailContainer =
+                document.getElementById(
+                    "equipmentDetail"
+                );
+
+
+            const urlParams =
+                new URLSearchParams(
+                    window.location.search
+                );
+
+
+            const equipmentId =
+                urlParams.get("id");
+
+
+            if (!equipmentId) {
+
+                detailContainer.innerHTML = `
+
+                    <div class="detail-error">
+
+                        ❌ ไม่พบรหัสอุปกรณ์
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "data/equipment.json"
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "ไม่สามารถโหลด equipment.json ได้"
+                    );
+
+                }
+
+
+                const equipment =
+                    await response.json();
+
+
+                const item =
+                    equipment.find(
+                        function (equipment) {
+
+                            return String(
+                                equipment.id
+                            ) === String(
+                                equipmentId
+                            );
+
+                        }
+                    );
+
+
+                if (!item) {
+
+                    detailContainer.innerHTML = `
+
+                        <div class="detail-error">
+
+                            ❌ ไม่พบข้อมูลอุปกรณ์
+
+                        </div>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                displayEquipmentDetail(item);
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                detailContainer.innerHTML = `
+
+                    <div class="detail-error">
+
+                        ❌ ไม่สามารถโหลดข้อมูลอุปกรณ์ได้
+
+                        <br><br>
+
+                        กรุณาตรวจสอบว่าเปิดเว็บไซต์ผ่าน Live Server
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        function displayEquipmentDetail(item) {
+
+            const detailContainer =
+                document.getElementById(
+                    "equipmentDetail"
+                );
+
+
+            const usageHTML =
+                item.usage
+                    ? item.usage.map(
+                        function (usage) {
+
+                            return `
+                                <li>
+                                    ${escapeHTML(usage)}
+                                </li>
+                            `;
+
+                        }
+                    ).join("")
+                    : "<li>ไม่มีข้อมูล</li>";
+
+
+            const measurementsHTML =
+                item.measurements
+                    ? item.measurements.map(
+                        function (measurement) {
+
+                            return `
+                                <span class="measurement-item">
+                                    ${escapeHTML(measurement)}
+                                </span>
+                            `;
+
+                        }
+                    ).join("")
+                    : "<span>ไม่มีข้อมูล</span>";
+
+
+            detailContainer.innerHTML = `
+
+                <div class="equipment-detail-card">
+
+                    <img
+                        class="equipment-detail-image"
+                        src="${escapeHTML(item.image)}"
+                        alt="${escapeHTML(item.name)}"
+                    >
+
+
+                    <div class="equipment-detail-content">
+
+
+                        <span class="equipment-detail-category">
+
+                            ${escapeHTML(item.category)}
+
+                        </span>
+
+
+                        <h1>
+
+                            ${escapeHTML(item.name)}
+
+                        </h1>
+
+
+                        <div class="equipment-thai-name">
+
+                            ${escapeHTML(item.thaiName)}
+
+                        </div>
+
+
+                        <div class="detail-box">
+
+                            <h2>
+                                📖 รายละเอียด
+                            </h2>
+
+                            <p>
+
+                                ${escapeHTML(
+                                    item.description ||
+                                    "ไม่มีข้อมูลรายละเอียด"
+                                )}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="detail-box">
+
+                            <h2>
+                                🛠 การใช้งาน
+                            </h2>
+
+                            <ul>
+
+                                ${usageHTML}
+
+                            </ul>
+
+                        </div>
+
+
+                        <div class="detail-box">
+
+                            <h2>
+                                📐 ค่าที่วัดได้
+                            </h2>
+
+                            <div class="measurement-list">
+
+                                ${measurementsHTML}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail-box">
+
+                            <h2>
+                                ⚙ หลักการทำงาน
+                            </h2>
+
+                            <p>
+
+                                ${escapeHTML(
+                                    item.principle ||
+                                    "ไม่มีข้อมูลหลักการทำงาน"
+                                )}
+
+                            </p>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        function escapeHTML(text) {
+
+            return String(text)
+
+                .replace(/&/g, "&amp;")
+
+                .replace(/</g, "&lt;")
+
+                .replace(/>/g, "&gt;")
+
+                .replace(/"/g, "&quot;")
+
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        loadEquipmentDetail();
+
+    </script>
+
+
+</body>
+
+</html>
